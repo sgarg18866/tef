@@ -1,0 +1,123 @@
+// Module included in the following assemblies:
+//
+// deploying/deploying.adoc
+
+[id='ref-operator-cluster-feature-gates-{context}']
+= Feature gates
+
+[role="_abstract"]
+Strimzi operators use feature gates to enable or disable specific features and functions.
+Enabling a feature gate alters the behavior of the associated operator, introducing the corresponding feature to your Strimzi deployment.
+
+The purpose of feature gates is to facilitate the trial and testing of a feature before it is fully adopted. 
+The state (enabled or disabled) of a feature gate may vary by default, depending on its maturity level.
+
+As a feature gate graduates and reaches General Availability (GA), it transitions to an enabled state by default and becomes a permanent part of the Strimzi deployment.
+A feature gate at the GA stage cannot be disabled.
+
+The supported feature gates are applicable to all Strimzi operators.
+While a particular feature gate might be used by one operator and ignored by the others, it can still be configured in all operators.
+When deploying the User Operator and Topic Operator within the context of the `Kafka` custom resource, the Cluster Operator automatically propagates the feature gates configuration to them.
+When the User Operator and Topic Operator are deployed standalone, without a Cluster Operator available to configure the feature gates, they must be directly configured within their deployments.
+
+== Feature gate releases
+
+[role="_abstract"]
+Feature gates have three stages of maturity:
+
+Alpha:: Alpha stage features are disabled by default. +
+They might be experimental or unstable, subject to change, or not sufficiently tested for production use.
+
+Beta:: Beta stage features are enabled by default, but they can be disabled if needed. +
+They are well tested and their functionality is not likely to change.
+
+General Availability (GA):: GA features are always enabled and cannot be disabled. +
+They are stable and should not change in the future.
+Feature gates might be removed when they reach GA, which means that the feature was incorporated into the Strimzi core features.
+
+Alpha and beta stage features are removed if they do not prove to be useful.
+When a feature gate reaches GA, it is permanently enabled and can no longer be disabled. 
+The following table shows the maturity of the feature gates introduced across Strimzi versions.
+
+.Feature gate maturity across Strimzi versions
+[cols="4*",options="header",stripes="none",separator=¦]
+|===
+
+¦Feature gate
+¦Alpha
+¦Beta
+¦GA
+
+¦`ControlPlaneListener`
+¦0.23
+¦0.27
+¦0.32
+
+¦`ServiceAccountPatching`
+¦0.24
+¦0.27
+¦0.30
+
+¦`UseStrimziPodSets`
+¦0.28
+¦0.30
+¦0.35
+
+¦`UseKRaft`
+¦0.29
+¦0.40
+¦0.42
+
+¦`StableConnectIdentities`
+¦0.34
+¦0.37
+¦0.39
+
+¦`KafkaNodePools`
+¦0.36
+¦0.39
+¦0.41
+
+¦`UnidirectionalTopicOperator`
+¦0.36
+¦0.39
+¦0.41
+
+¦`ContinueReconciliationOnManualRollingUpdateFailure`
+¦0.41
+¦0.44
+¦0.46
+
+|===
+
+
+== Graduated feature gates (GA)
+
+For information on feature gates that have reached GA, see the documentation for the Strimzi version in which they were introduced.
+
+== Stable feature gates (Beta)
+
+Stable feature gates have reached a beta level of maturity, and are generally enabled by default for all users.
+Stable feature gates are production-ready, but they can still be disabled.
+Currently, there are no beta level feature gates.
+
+== Early access feature gates (Alpha)
+
+Early access feature gates have not yet reached the beta stage, and are disabled by default. 
+An early access feature gate provides an opportunity for assessment before its functionality is permanently incorporated into Strimzi.
+Currently, there are no alpha level feature gates.
+
+== Enabling feature gates
+
+To modify a feature gate's default state, use the `STRIMZI_FEATURE_GATES` environment variable in the operator's configuration.
+You can modify multiple feature gates using this single environment variable.
+Specify a comma-separated list of feature gate names and prefixes.
+A `+` prefix enables the feature gate and a `-` prefix  disables it.
+
+.Example feature gate configuration that enables `FeatureGate1` and disables `FeatureGate2`
+[source,yaml,options="nowrap"]
+----
+env:
+  - name: STRIMZI_FEATURE_GATES
+    value: +FeatureGate1,-FeatureGate2
+----

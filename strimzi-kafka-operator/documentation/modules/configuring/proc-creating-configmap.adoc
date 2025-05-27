@@ -1,0 +1,68 @@
+// Module included in the following assemblies:
+//
+// assembly-logging-configuration.adoc
+
+[id='creating-configmap_{context}']
+= Creating a ConfigMap for logging
+
+[role="_abstract"]
+To use a `ConfigMap` to define logging properties, you create and then reference it as part of the logging definition in the `spec` of a resource.
+Place the configuration under `log4j2.properties` 
+
+In this procedure a `ConfigMap` defines a root logger for a `Kafka` resource.
+
+.Procedure
+
+. Create the `ConfigMap` as a YAML file or from a properties file.
++
+.Example ConfigMap for logging
+[source,yaml,subs="+attributes"]
+----
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: logging-configmap
+data:
+  log4j2.properties: |
+    rootLogger.level = "INFO"
+    appender.console.type = Console
+    appender.console.name = STDOUT
+    appender.console.layout.type = PatternLayout
+    appender.console.layout.pattern = %d{yyyy-MM-dd HH:mm:ss} %-5p [%t] %c{1}:%L - %m%n
+    rootLogger.level = INFO
+    rootLogger.appenderRefs = console
+    rootLogger.appenderRef.console.ref = STDOUT
+    rootLogger.additivity = false
+----
++
+If you are using a properties file, define the logging configuration and specify the file at the command line when creating the `ConfigMap`.
++
+.Properties file definition
+[source,text]
+----
+# Define the logger
+rootLogger.level = "INFO"
+# ...
+----
++
+.Specifying the properties file
+[source,shell]
+----
+kubectl create configmap logging-configmap --from-file=log4j2.properties
+----
+
+. Add `external` logging to the `spec` of the `Kafka` resource, specifying the `name` and `key` of the `ConfigMap`:
++
+[source,shell,subs="+quotes,attributes"]
+----
+# ...
+logging:
+  type: external
+  valueFrom:
+    configMapKeyRef:
+      name: logging-configmap
+      key: log4j2.properties
+# ...
+----
+
+. Apply the changes to the `Kafka` configuration.
